@@ -5,8 +5,6 @@
 package scheduler
 
 import (
-	"github.com/gitpod-io/gitpod/common-go/util"
-
 	validation "github.com/go-ozzo/ozzo-validation"
 )
 
@@ -37,8 +35,7 @@ type DensityAndExperienceConfig struct {
 }
 
 type RateLimitConfig struct {
-	BucketSize     uint          `json:"bucketSize"`
-	RefillInterval util.Duration `json:"refillInterval"`
+	MaxRPS uint `json:"maxRPS"`
 }
 
 // DefaultDensityAndExperienceConfig creates the config with default values

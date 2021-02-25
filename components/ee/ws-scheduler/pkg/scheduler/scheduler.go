@@ -119,7 +119,8 @@ func NewScheduler(config Configuration, clientset kubernetes.Interface) (*Schedu
 	localSlotCache := newLocalSlotCache()
 	var rateLimiter *rate.Limiter
 	if config.RateLimit != nil {
-		rateLimiter = rate.NewLimiter(rate.Every(time.Duration(config.RateLimit.RefillInterval)), int(config.RateLimit.BucketSize))
+		burst := int(1) // we only ever draw 1 token at a time so we just make sure it's > 0
+		rateLimiter = rate.NewLimiter(rate.Limit(config.RateLimit.MaxRPS), burst)
 	}
 
 	return &Scheduler{

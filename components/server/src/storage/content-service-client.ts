@@ -103,8 +103,8 @@ export class ContentServiceStorageClient implements StorageClient {
         });
         try {
             const response = (await grcpPromise).toObject();
-            // return decodeURI(response.url);
-            return response.url;
+            return decodeURI(response.url);
+            // return response.url;
         } catch (err) {
             throw err;
         }
@@ -126,8 +126,8 @@ export class ContentServiceStorageClient implements StorageClient {
         });
         try {
             const response = (await grcpPromise).toObject();
-            // return decodeURI(response.url);
-            return response.url;
+            return decodeURI(response.url);
+            // return response.url;
         } catch (err) {
             throw err;
         }

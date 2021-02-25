@@ -70,9 +70,11 @@ export class TheiaPluginService {
         try {
             if (state == TheiaPlugin.State.Uploading) {
                 const signedUrl = await this.storageClient.createPluginUploadUrl(bucketName, path);
+                log.debug(`plugin upload url: ${signedUrl}`)
                 return signedUrl;
             } else {
                 const signedUrl = await this.storageClient.createPluginDownloadUrl(bucketName, path);
+                log.debug(`plugin download url: ${signedUrl}`)
                 return signedUrl;
             }
         } catch (error) {
@@ -129,7 +131,9 @@ export class TheiaPluginService {
         const pathFn = (pluginEntryId: string) => this.toObjectPath(pluginEntryId, userId, fullPluginName);
         const pluginEntry = await this.pluginDB.newPlugin(userId, fullPluginName, this.bucketName, pathFn);
         const pluginEntryId = pluginEntry.id;
-        return this.getPublicPluginURL(pluginEntryId);
+        const publicUrl = this.getPublicPluginURL(pluginEntryId);
+        log.debug(`public plugin url: ${publicUrl}`);
+        return publicUrl;
     }
 
     private parseFullPluginName(fullPluginName: string): { name: string, version?: string } {

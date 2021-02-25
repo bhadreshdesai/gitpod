@@ -13,7 +13,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -449,7 +448,7 @@ func (s *Scheduler) schedulePod(ctx context.Context, pi *QueuedPodInfo, bindPodT
 	// metrics
 	metrics.PodScheduled(workspaceType, metrics.SinceInSeconds(start))
 	metrics.PodSchedulingAttempts.WithLabelValues(workspaceType).Observe(float64(pi.Attempts))
-	metrics.PodSchedulingDuration.WithLabelValues(getAttemptsLabel(pi), workspaceType).Observe(metrics.SinceInSeconds(pi.InitialAttemptTimestamp))
+	metrics.PodSchedulingDuration.WithLabelValues(workspaceType).Observe(metrics.SinceInSeconds(pi.InitialAttemptTimestamp))
 
 	return resultBound, nil
 }
@@ -808,14 +807,6 @@ func isKubernetesObjNotFoundError(err error) bool {
 		return err.ErrStatus.Code == http.StatusNotFound
 	}
 	return false
-}
-
-func getAttemptsLabel(pi *QueuedPodInfo) string {
-	// capping here to reduce cardinality
-	if pi.Attempts >= 15 {
-		return "15+"
-	}
-	return strconv.Itoa(pi.Attempts)
 }
 
 // localSlotCache stores whether we already are scheduling a Pod and is necessary to bridge the gap between:

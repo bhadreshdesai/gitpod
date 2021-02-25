@@ -47,7 +47,7 @@ var (
 			// last bucket: [~16m, Inf).
 			Buckets: prometheus.ExponentialBuckets(0.5, 2, 11),
 		},
-		[]string{"attempts", "workspaceType"})
+		[]string{"workspaceType"})
 
 	PodSchedulingAttempts = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{

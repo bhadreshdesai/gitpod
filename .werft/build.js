@@ -106,6 +106,7 @@ async function build(context, version) {
     const withInstaller = "with-installer" in buildConfig || masterBuild;
     const noPreview = "no-preview" in buildConfig || publishRelease;
     const registryFacadeHandover = "registry-facade-handover" in buildConfig;
+    const gcpStorage = "gcp-storage" in buildConfig;
     werft.log("job config", JSON.stringify({
         buildConfig,
         version,
@@ -117,6 +118,7 @@ async function build(context, version) {
         dynamicCPULimits,
         noPreview,
         registryFacadeHandover,
+        gcpStorage,
     }));
 
     /**
@@ -161,7 +163,7 @@ async function build(context, version) {
         werft.phase("deploy", "not deploying");
         console.log("no-preview or publish-release is set");
     } else {
-        await deployToDev(version, workspaceFeatureFlags, dynamicCPULimits, registryFacadeHandover);
+        await deployToDev(version, workspaceFeatureFlags, dynamicCPULimits, registryFacadeHandover, gcpStorage);
     }
 }
 
@@ -169,7 +171,7 @@ async function build(context, version) {
 /**
  * Deploy dev
  */
-async function deployToDev(version, workspaceFeatureFlags, dynamicCPULimits, registryFacadeHandover) {
+async function deployToDev(version, workspaceFeatureFlags, dynamicCPULimits, registryFacadeHandover, gcpStorage) {
     werft.phase("deploy", "deploying to dev");
     const destname = version.split(".")[0];
     const namespace = `staging-${destname}`;
@@ -284,6 +286,11 @@ async function deployToDev(version, workspaceFeatureFlags, dynamicCPULimits, reg
     try {
         shell.cd("chart");
         werft.log('helm', 'installing Gitpod');
+
+        if (gcpStorage) {
+            flags+=` -f ../.werft/values.dev.gcp-storage.yaml`
+            exec(`cp "${GCLOUD_SERVICE_ACCOUNT_PATH}" ./service-account.json`);
+        }
         
         exec(`helm dependencies up`);
         exec(`/usr/local/bin/helm3 upgrade --install --timeout 10m -f ../.werft/values.dev.yaml ${flags} gitpod .`);
